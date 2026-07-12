@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Cancelled</title>
+</head>
+<body>
+    <main>
+        <h1>Payment cancelled</h1>
+        <p>The payment was not completed.</p>
+
+        {% if invoice_id %}
+            <p>Invoice ID: {{ invoice_id }}</p>
+        {% endif %}
+    </main>
+</body>
+</html>

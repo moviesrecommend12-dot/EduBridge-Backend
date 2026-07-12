@@ -1,0 +1,118 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الجداول{% endblock %}
+{% block page_title %}إدارة الجداول{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="classroom">
+            <option value="">كل الصفوف</option>
+            {% for classroom in classrooms %}
+            <option value="{{ classroom.id }}" {% if selected_classroom == classroom.id %}selected{% endif %}>
+                {{ classroom.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="section">
+            <option value="">كل الشعب</option>
+            {% for section in sections %}
+            <option value="{{ section.id }}" {% if selected_section == section.id %}selected{% endif %}>
+                {{ section }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="day">
+            <option value="">كل الأيام</option>
+            {% for day_value, day_label in day_choices %}
+            <option value="{{ day_value }}" {% if selected_day == day_value %}selected{% endif %}>
+                {{ day_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="teacher">
+            <option value="">كل المعلمين</option>
+            {% for teacher in teachers %}
+            <option value="{{ teacher.id }}" {% if selected_teacher == teacher.id %}selected{% endif %}>
+                {{ teacher.user.get_full_name|default:teacher.user.username }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="primary-button">
+            فلترة
+        </button>
+
+        <a href="{% url 'dashboard:schedule-list' %}" class="secondary-button">
+            إعادة ضبط
+        </a>
+    </form>
+
+    <a href="{% url 'dashboard:schedule-create' %}" class="primary-button">
+        إضافة جدول
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>اليوم</th>
+                <th>الوقت</th>
+                <th>الصف</th>
+                <th>الشعبة</th>
+                <th>المادة</th>
+                <th>المعلم</th>
+                <th>الغرفة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for schedule in schedules %}
+            <tr>
+                <td>{{ schedule.day_name }}</td>
+                <td>{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</td>
+                <td>{{ schedule.classroom.name }}</td>
+                <td>{{ schedule.section.name }}</td>
+                <td>{{ schedule.subject.name }}</td>
+                <td>{{ schedule.teacher.user.get_full_name|default:schedule.teacher.user.username }}</td>
+                <td>{{ schedule.room_name|default:"-" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:schedule-update' schedule.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <form method="post" action="{% url 'dashboard:schedule-delete' schedule.id %}"
+                            onsubmit="return confirm('هل تريد حذف هذا الجدول؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="empty-row">
+                    لا توجد جداول.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

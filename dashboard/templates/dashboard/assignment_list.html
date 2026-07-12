@@ -1,0 +1,118 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الواجبات{% endblock %}
+{% block page_title %}إدارة الواجبات{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="classroom">
+            <option value="">كل الصفوف</option>
+            {% for classroom in classrooms %}
+            <option value="{{ classroom.id }}" {% if selected_classroom == classroom.id %}selected{% endif %}>
+                {{ classroom.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="section">
+            <option value="">كل الشعب</option>
+            {% for section in sections %}
+            <option value="{{ section.id }}" {% if selected_section == section.id %}selected{% endif %}>
+                {{ section }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="subject">
+            <option value="">كل المواد</option>
+            {% for subject in subjects %}
+            <option value="{{ subject.id }}" {% if selected_subject == subject.id %}selected{% endif %}>
+                {{ subject.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="teacher">
+            <option value="">كل المعلمين</option>
+            {% for teacher in teachers %}
+            <option value="{{ teacher.id }}" {% if selected_teacher == teacher.id %}selected{% endif %}>
+                {{ teacher.user.get_full_name|default:teacher.user.username }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="primary-button">
+            فلترة
+        </button>
+
+        <a href="{% url 'dashboard:assignment-list' %}" class="secondary-button">
+            إعادة ضبط
+        </a>
+    </form>
+
+    <a href="{% url 'dashboard:assignment-create' %}" class="primary-button">
+        إضافة واجب
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>العنوان</th>
+                <th>المعلم</th>
+                <th>الصف</th>
+                <th>الشعبة</th>
+                <th>المادة</th>
+                <th>تاريخ التسليم</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for assignment in assignments %}
+            <tr>
+                <td>{{ assignment.title }}</td>
+                <td>{{ assignment.teacher.user.get_full_name|default:assignment.teacher.user.username }}</td>
+                <td>{{ assignment.classroom.name }}</td>
+                <td>{{ assignment.section.name }}</td>
+                <td>{{ assignment.subject.name }}</td>
+                <td>{{ assignment.due_date|date:"Y-m-d"|default:"-" }}</td>
+                <td>{{ assignment.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:assignment-update' assignment.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <form method="post" action="{% url 'dashboard:assignment-delete' assignment.id %}"
+                            onsubmit="return confirm('هل تريد حذف الواجب؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="empty-row">
+                    لا توجد واجبات.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

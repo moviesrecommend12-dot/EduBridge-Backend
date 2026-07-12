@@ -1,0 +1,74 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الصفوف{% endblock %}
+{% block page_title %}إدارة الصفوف{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <a href="{% url 'dashboard:classroom-create' %}" class="primary-button">
+        إضافة صف
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>اسم الصف</th>
+                <th>المستوى</th>
+                <th>الشعب</th>
+                <th>الوصف</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for classroom in classrooms %}
+            <tr>
+                <td>{{ classroom.name }}</td>
+                <td>{{ classroom.grade_level|default:"-" }}</td>
+                <td>
+                    {% for section in classroom.sections.all %}
+                    <span class="code-badge">
+                        {{ section.name }}
+                    </span>
+                    {% empty %}
+                    -
+                    {% endfor %}
+                </td>
+                <td>{{ classroom.description|default:"-" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:classroom-update' classroom.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <form method="post" action="{% url 'dashboard:classroom-delete' classroom.id %}"
+                            onsubmit="return confirm('هل تريد حذف الصف؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="empty-row">
+                    لا توجد صفوف.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

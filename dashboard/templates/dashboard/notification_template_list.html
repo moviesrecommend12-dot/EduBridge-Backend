@@ -1,0 +1,82 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}قوالب الإشعارات{% endblock %}
+{% block page_title %}قوالب الإشعارات{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <input type="text" name="q" placeholder="ابحث بالمفتاح أو النص" value="{{ selected_query }}">
+
+        <select name="language">
+            <option value="">كل اللغات</option>
+            {% for language_value, language_label in language_choices %}
+            <option value="{{ language_value }}" {% if selected_language == language_value %}selected{% endif %}>
+                {{ language_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="type">
+            <option value="">كل الأنواع</option>
+            {% for type_value, type_label in type_choices %}
+            <option value="{{ type_value }}" {% if selected_type == type_value %}selected{% endif %}>
+                {{ type_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="primary-button">فلترة</button>
+        <a href="{% url 'dashboard:notification-template-list' %}" class="secondary-button">إعادة ضبط</a>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>المفتاح</th>
+                <th>اللغة</th>
+                <th>النوع</th>
+                <th>العنوان</th>
+                <th>الرسالة</th>
+                <th>الحالة</th>
+                <th>آخر تحديث</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for template in templates %}
+            <tr>
+                <td><span class="code-badge">{{ template.key }}</span></td>
+                <td><span class="code-badge">{{ template.language }}</span></td>
+                <td><span class="code-badge">{{ template.notification_type }}</span></td>
+                <td>{{ template.title_template }}</td>
+                <td>{{ template.message_template|truncatechars:90 }}</td>
+                <td>
+                    {% if template.is_active %}
+                    <span class="status active">فعال</span>
+                    {% else %}
+                    <span class="status used">متوقف</span>
+                    {% endif %}
+                </td>
+                <td>{{ template.updated_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'dashboard:notification-template-update' template.id %}">تعديل</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="empty-row">لا توجد قوالب إشعارات مطابقة.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

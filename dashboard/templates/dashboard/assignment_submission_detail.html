@@ -1,0 +1,98 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}تفاصيل تسليم واجب{% endblock %}
+{% block page_title %}تفاصيل تسليم واجب{% endblock %}
+
+{% block content %}
+
+<div class="page-actions">
+    <a href="{% url 'dashboard:assignment-submission-list' %}" class="secondary-button">
+        رجوع للتسليمات
+    </a>
+
+    <div class="table-actions">
+        {% if submission.file %}
+        <a href="{% url 'dashboard:assignment-submission-open' submission.id %}" class="primary-button" target="_blank">
+            فتح الملف
+        </a>
+        {% endif %}
+        <a href="{% url 'dashboard:assignment-submission-review' submission.id %}" class="primary-button">
+            مراجعة التسليم
+        </a>
+    </div>
+</div>
+
+<div class="form-card receipt-card">
+    <div class="form-heading">
+        <h2>{{ submission.assignment.title }}</h2>
+        <p>
+            {{ submission.student.user.get_full_name|default:submission.student.user.username }}
+            - {{ submission.assignment.subject.name }}
+        </p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span>الطالب</span>
+            <strong>{{ submission.student.user.get_full_name|default:submission.student.user.username }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>رقم الطالب</span>
+            <strong>{{ submission.student.student_code }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الصف</span>
+            <strong>{{ submission.assignment.classroom.name }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الشعبة</span>
+            <strong>{{ submission.assignment.section.name }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>المادة</span>
+            <strong>{{ submission.assignment.subject.name }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الحالة</span>
+            <strong>{{ submission.status_name }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>تاريخ التسليم</span>
+            <strong>{{ submission.submitted_at|date:"Y-m-d H:i" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>آخر تحديث</span>
+            <strong>{{ submission.updated_at|date:"Y-m-d H:i" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>درجة المراجعة</span>
+            <strong>{{ submission.grade|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>ملاحظة المعلم</span>
+            <strong>{{ submission.teacher_note|default:"-" }}</strong>
+        </div>
+    </div>
+
+    <div class="form-heading">
+        <h2>الإجابة النصية</h2>
+        <p>{{ submission.text_answer|default:"لا توجد إجابة نصية." }}</p>
+    </div>
+</div>
+
+{% if submission.file %}
+<div class="file-preview">
+    <iframe src="{% url 'dashboard:assignment-submission-open' submission.id %}" title="{{ submission.assignment.title }}"></iframe>
+</div>
+{% endif %}
+
+{% endblock %}

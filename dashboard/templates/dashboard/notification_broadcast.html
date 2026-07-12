@@ -1,0 +1,56 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}إرسال إشعار{% endblock %}
+{% block page_title %}مركز إرسال الإشعارات{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="form-card">
+    <div class="form-heading">
+        <h2>إرسال إشعار جماعي</h2>
+        <p>اختر الجمهور المطلوب، وسيتم إنشاء إشعار داخل التطبيق وتشغيل Push تلقائيًا حسب تفضيلات كل مستخدم.</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="field-errors form-errors">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        {% for field in form %}
+        <div class="form-group">
+            {{ field.label_tag }}
+            {{ field }}
+
+            {% if field.help_text %}
+            <small class="field-help">{{ field.help_text }}</small>
+            {% endif %}
+
+            {% if field.errors %}
+            <div class="field-errors">
+                {{ field.errors }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="form-actions">
+            <button type="submit" class="primary-button">
+                إرسال الإشعار
+            </button>
+
+            <a href="{% url 'dashboard:notification-list' %}" class="secondary-button">
+                رجوع للإشعارات
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الإيصالات{% endblock %}
+{% block page_title %}إدارة الإيصالات{% endblock %}
+
+{% block content %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <input type="text" name="q" value="{{ query }}" placeholder="ابحث برقم الإيصال أو الطالب أو ولي الأمر أو Stripe">
+
+        <button type="submit" class="primary-button">
+            بحث
+        </button>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>رقم الإيصال</th>
+                <th>الطالب</th>
+                <th>ولي الأمر</th>
+                <th>الفاتورة</th>
+                <th>المبلغ</th>
+                <th>تاريخ الإصدار</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for receipt in receipts %}
+            <tr>
+                <td>
+                    <span class="code-badge">{{ receipt.receipt_number }}</span>
+                </td>
+                <td>
+                    {{ receipt.payment.invoice.student.user.get_full_name|default:receipt.payment.invoice.student.user.username }}
+                    <span class="code-badge">{{ receipt.payment.invoice.student.student_code }}</span>
+                </td>
+                <td>
+                    {% if receipt.payment.parent %}
+                    {{ receipt.payment.parent.user.get_full_name|default:receipt.payment.parent.user.username }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>{{ receipt.payment.invoice.title }}</td>
+                <td>{{ receipt.payment.amount }} {{ receipt.payment.currency|upper }}</td>
+                <td>{{ receipt.issued_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:receipt-detail' receipt.id %}" class="table-link">
+                            التفاصيل
+                        </a>
+
+                        <a href="{% url 'dashboard:invoice-update' receipt.payment.invoice.id %}" class="table-link">
+                            الفاتورة
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="empty-row">
+                    لا توجد إيصالات.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

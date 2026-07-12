@@ -1,0 +1,56 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ uploaded_file.title }}{% endblock %}
+{% block page_title %}عرض الملف{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+    <a href="{% url 'dashboard:uploaded-file-list' %}" class="secondary-button">
+        رجوع إلى الملفات
+    </a>
+
+    {% if uploaded_file.file %}
+    <a href="{% url 'dashboard:uploaded-file-open' uploaded_file.id %}" class="primary-button" target="_blank">
+        فتح مباشر
+    </a>
+    {% endif %}
+</div>
+
+<div class="form-card receipt-card">
+    <div class="form-heading">
+        <h2>{{ uploaded_file.title }}</h2>
+        <p>
+            {{ uploaded_file.teacher.user.get_full_name|default:uploaded_file.teacher.user.username }}
+            - {{ uploaded_file.subject.name }}
+        </p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span>الصف</span>
+            <strong>{{ uploaded_file.classroom.name }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الشعبة</span>
+            <strong>{{ uploaded_file.section.name }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الواجب</span>
+            <strong>{{ uploaded_file.assignment.title|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>نوع الملف</span>
+            <strong>{{ uploaded_file.file_type_name }}</strong>
+        </div>
+    </div>
+</div>
+
+{% if uploaded_file.file %}
+<div class="file-preview">
+    <iframe src="{% url 'dashboard:uploaded-file-open' uploaded_file.id %}" title="{{ uploaded_file.title }}"></iframe>
+</div>
+{% endif %}
+{% endblock %}

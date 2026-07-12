@@ -1,0 +1,35 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}حذف ولي الأمر{% endblock %}
+{% block page_title %}تأكيد حذف ولي الأمر{% endblock %}
+
+{% block content %}
+<div class="form-card danger-card">
+    <h2>هل أنت متأكد؟</h2>
+
+    <p>
+        سيتم حذف ولي الأمر:
+        <strong>
+            {{ parent.user.get_full_name|default:parent.user.username }}
+        </strong>
+    </p>
+
+    <p>
+        سيتم حذف روابطه مع الطلاب، ولن يتم حذف الطلاب أنفسهم.
+    </p>
+
+    <form method="post" action="{% url 'dashboard:parent-delete' parent.id %}">
+        {% csrf_token %}
+
+        <div class="form-actions">
+            <button type="submit" class="danger-button">
+                تأكيد الحذف
+            </button>
+
+            <a href="{% url 'dashboard:parent-list' %}" class="secondary-button">
+                إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

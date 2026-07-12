@@ -1,0 +1,113 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}تفاصيل الإشعار{% endblock %}
+{% block page_title %}تفاصيل الإشعار{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+    <a href="{% url 'dashboard:notification-list' %}" class="secondary-button">
+        رجوع إلى الإشعارات
+    </a>
+
+    <a href="{% url 'dashboard:push-delivery-list' %}" class="secondary-button">
+        سجل Push
+    </a>
+</div>
+
+<div class="form-card receipt-card">
+    <div class="form-heading">
+        <h2>{{ notification.title }}</h2>
+        <p>{{ notification.recipient.get_full_name|default:notification.recipient.username }} - {{ notification.type_name }}</p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span>المستلم</span>
+            <strong>{{ notification.recipient.get_full_name|default:notification.recipient.username }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>نوع الإشعار</span>
+            <strong>{{ notification.notification_type }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الحالة</span>
+            <strong>{% if notification.is_read %}مقروء{% else %}غير مقروء{% endif %}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>تاريخ الإنشاء</span>
+            <strong>{{ notification.created_at|date:"Y-m-d H:i" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>تاريخ القراءة</span>
+            <strong>{{ notification.read_at|date:"Y-m-d H:i"|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Related object</span>
+            <strong>
+                {{ notification.related_object_type|default:"-" }}
+                {% if notification.related_object_id %}
+                #{{ notification.related_object_id }}
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Deep link</span>
+            <strong>{{ notification.deep_link|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الرسالة</span>
+            <strong>{{ notification.message }}</strong>
+        </div>
+    </div>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>الجهاز</th>
+                <th>المنصة</th>
+                <th>الحالة</th>
+                <th>Message ID</th>
+                <th>Error code</th>
+                <th>وقت المحاولة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for delivery in deliveries %}
+            <tr>
+                <td>{{ delivery.device.app_name }} - {{ delivery.device.device_id|default:"-" }}</td>
+                <td><span class="code-badge">{{ delivery.device.platform }}</span></td>
+                <td>
+                    {% if delivery.status == "SENT" %}
+                    <span class="status active">Sent</span>
+                    {% elif delivery.status == "SKIPPED" or delivery.status == "PENDING" %}
+                    <span class="status pending">{{ delivery.status }}</span>
+                    {% else %}
+                    <span class="status used">{{ delivery.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ delivery.provider_message_id|truncatechars:28|default:"-" }}</td>
+                <td>{{ delivery.error_code|default:"-" }}</td>
+                <td>{{ delivery.attempted_at|date:"Y-m-d H:i"|default:"-" }}</td>
+                <td>
+                    <a href="{% url 'dashboard:push-delivery-detail' delivery.id %}">تفاصيل</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="empty-row">لا يوجد سجل Push لهذا الإشعار.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

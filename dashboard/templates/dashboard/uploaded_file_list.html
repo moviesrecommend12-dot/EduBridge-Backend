@@ -1,0 +1,122 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الملفات{% endblock %}
+{% block page_title %}إدارة الملفات المرفوعة{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="classroom">
+            <option value="">كل الصفوف</option>
+            {% for classroom in classrooms %}
+            <option value="{{ classroom.id }}" {% if selected_classroom == classroom.id %}selected{% endif %}>
+                {{ classroom.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="section">
+            <option value="">كل الشعب</option>
+            {% for section in sections %}
+            <option value="{{ section.id }}" {% if selected_section == section.id %}selected{% endif %}>
+                {{ section }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="subject">
+            <option value="">كل المواد</option>
+            {% for subject in subjects %}
+            <option value="{{ subject.id }}" {% if selected_subject == subject.id %}selected{% endif %}>
+                {{ subject.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="file_type">
+            <option value="">كل الأنواع</option>
+            {% for file_type_value, file_type_label in file_type_choices %}
+            <option value="{{ file_type_value }}" {% if selected_file_type == file_type_value %}selected{% endif %}>
+                {{ file_type_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="primary-button">
+            فلترة
+        </button>
+
+        <a href="{% url 'dashboard:uploaded-file-list' %}" class="secondary-button">
+            إعادة ضبط
+        </a>
+    </form>
+
+    <a href="{% url 'dashboard:uploaded-file-create' %}" class="primary-button">
+        رفع ملف
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>العنوان</th>
+                <th>المعلم</th>
+                <th>الواجب</th>
+                <th>الصف</th>
+                <th>الشعبة</th>
+                <th>المادة</th>
+                <th>النوع</th>
+                <th>تاريخ الرفع</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for uploaded_file in uploaded_files %}
+            <tr>
+                <td>{{ uploaded_file.title }}</td>
+                <td>{{ uploaded_file.teacher.user.get_full_name|default:uploaded_file.teacher.user.username }}</td>
+                <td>{{ uploaded_file.assignment.title|default:"-" }}</td>
+                <td>{{ uploaded_file.classroom.name }}</td>
+                <td>{{ uploaded_file.section.name }}</td>
+                <td>{{ uploaded_file.subject.name }}</td>
+                <td><span class="code-badge">{{ uploaded_file.file_type_name }}</span></td>
+                <td>{{ uploaded_file.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    <div class="table-actions">
+                        {% if uploaded_file.file %}
+                        <a href="{% url 'dashboard:uploaded-file-detail' uploaded_file.id %}" class="table-link" target="_blank">
+                            فتح
+                        </a>
+                        {% endif %}
+
+                        <form method="post" action="{% url 'dashboard:uploaded-file-delete' uploaded_file.id %}"
+                            onsubmit="return confirm('هل تريد حذف الملف؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="empty-row">
+                    لا توجد ملفات مرفوعة.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}تعديل ولي الأمر{% endblock %}
+{% block page_title %}تعديل بيانات ولي الأمر{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <div class="form-heading">
+        <h2>
+            {{ parent.user.get_full_name|default:parent.user.username }}
+        </h2>
+
+        <p>
+            اسم المستخدم: {{ parent.user.username }}
+        </p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+            </label>
+
+            {{ field }}
+
+            {% if field.errors %}
+            <div class="field-errors">
+                {{ field.errors }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="form-actions">
+            <button type="submit" class="primary-button">
+                حفظ التعديلات
+            </button>
+
+            <a href="{% url 'dashboard:parent-list' %}" class="secondary-button">
+                إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

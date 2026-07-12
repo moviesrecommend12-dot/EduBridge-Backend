@@ -1,0 +1,133 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}تفاصيل Push Delivery{% endblock %}
+{% block page_title %}تفاصيل Push Delivery{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <a href="{% url 'dashboard:push-delivery-list' %}" class="secondary-button">
+        رجوع إلى سجل الإرسال
+    </a>
+
+    <a href="{% url 'dashboard:push-device-list' %}" class="secondary-button">
+        أجهزة Push
+    </a>
+
+    <form method="post" action="{% url 'dashboard:push-delivery-retry' delivery.id %}">
+        {% csrf_token %}
+        <button type="submit" class="primary-button">
+            إعادة المحاولة
+        </button>
+    </form>
+</div>
+
+<div class="form-card receipt-card">
+    <div class="form-heading">
+        <h2>Delivery #{{ delivery.id }}</h2>
+        <p>{{ delivery.created_at|date:"Y-m-d H:i" }}</p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span>الحالة</span>
+            <strong>{{ delivery.status }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>وقت المحاولة</span>
+            <strong>{{ delivery.attempted_at|date:"Y-m-d H:i"|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Message ID</span>
+            <strong>{{ delivery.provider_message_id|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Error code</span>
+            <strong>{{ delivery.error_code|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Error message</span>
+            <strong>{{ delivery.error_message|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>المستلم</span>
+            <strong>{{ delivery.notification.recipient.get_full_name|default:delivery.notification.recipient.username }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>نوع الإشعار</span>
+            <strong>{{ delivery.notification.notification_type }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>عنوان الإشعار</span>
+            <strong>{{ delivery.notification.title }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>رسالة الإشعار</span>
+            <strong>{{ delivery.notification.message }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Deep link</span>
+            <strong>{{ delivery.notification.deep_link|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Related object</span>
+            <strong>
+                {{ delivery.notification.related_object_type|default:"-" }}
+                {% if delivery.notification.related_object_id %}
+                #{{ delivery.notification.related_object_id }}
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <span>مستخدم الجهاز</span>
+            <strong>{{ delivery.device.user.get_full_name|default:delivery.device.user.username }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>المنصة</span>
+            <strong>{{ delivery.device.platform }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>التطبيق</span>
+            <strong>{{ delivery.device.app_name }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Device ID</span>
+            <strong>{{ delivery.device.device_id|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>حالة الجهاز</span>
+            <strong>{% if delivery.device.is_active %}فعال{% else %}غير فعال{% endif %}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>آخر خطأ للجهاز</span>
+            <strong>{{ delivery.device.last_error|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Token</span>
+            <strong>{{ delivery.device.token }}</strong>
+        </div>
+    </div>
+</div>
+{% endblock %}

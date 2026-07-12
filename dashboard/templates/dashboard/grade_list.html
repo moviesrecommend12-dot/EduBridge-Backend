@@ -1,0 +1,117 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الدرجات{% endblock %}
+{% block page_title %}إدارة الدرجات{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="student">
+            <option value="">كل الطلاب</option>
+            {% for student in students %}
+            <option value="{{ student.id }}" {% if selected_student == student.id %}selected{% endif %}>
+                {{ student.user.get_full_name|default:student.user.username }} - {{ student.student_code }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="subject">
+            <option value="">كل المواد</option>
+            {% for subject in subjects %}
+            <option value="{{ subject.id }}" {% if selected_subject == subject.id %}selected{% endif %}>
+                {{ subject.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <input type="date" name="date" value="{{ selected_date }}">
+
+        <button type="submit" class="primary-button">
+            فلترة
+        </button>
+
+        <a href="{% url 'dashboard:grade-list' %}" class="secondary-button">
+            إعادة ضبط
+        </a>
+    </form>
+
+    <a href="{% url 'dashboard:grade-create' %}" class="primary-button">
+        إضافة درجة
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>الطالب</th>
+                <th>الصف</th>
+                <th>الشعبة</th>
+                <th>المادة</th>
+                <th>العنوان</th>
+                <th>الدرجة</th>
+                <th>المعلم</th>
+                <th>الملاحظة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for grade in grades %}
+            <tr>
+                <td>{{ grade.date|date:"Y-m-d" }}</td>
+                <td>
+                    {{ grade.student.user.get_full_name|default:grade.student.user.username }}
+                    <span class="code-badge">{{ grade.student.student_code }}</span>
+                </td>
+                <td>{{ grade.student.classroom|default:"-" }}</td>
+                <td>{{ grade.student.section|default:"-" }}</td>
+                <td>{{ grade.subject.name }}</td>
+                <td>{{ grade.title }}</td>
+                <td>
+                    <span class="code-badge">{{ grade.score }}/{{ grade.max_score }}</span>
+                </td>
+                <td>
+                    {% if grade.teacher %}
+                    {{ grade.teacher.user.get_full_name|default:grade.teacher.user.username }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>{{ grade.note|default:"-" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:grade-update' grade.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <form method="post" action="{% url 'dashboard:grade-delete' grade.id %}"
+                            onsubmit="return confirm('هل تريد حذف الدرجة؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" class="empty-row">
+                    لا توجد درجات.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

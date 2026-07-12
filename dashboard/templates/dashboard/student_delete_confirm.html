@@ -1,0 +1,48 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}
+حذف الطالب
+{% endblock %}
+
+{% block page_title %}
+تأكيد حذف الطالب
+{% endblock %}
+
+{% block content %}
+
+<div class="form-card danger-card">
+    <h2>هل أنت متأكد؟</h2>
+
+    <p>
+        سيتم حذف الطالب:
+        <strong>
+            {{ student.user.get_full_name|default:student.user.username }}
+        </strong>
+    </p>
+
+    <p>
+        كما سيتم حذف البيانات المرتبطة به حسب علاقات قاعدة البيانات.
+    </p>
+
+    <form
+        method="post"
+        action="{% url 'dashboard:student-delete' student.id %}"
+    >
+        {% csrf_token %}
+
+        <div class="form-actions">
+            <button type="submit" class="danger-button">
+                تأكيد الحذف
+            </button>
+
+            <a
+                href="{% url 'dashboard:student-list' %}"
+                class="secondary-button"
+            >
+                إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

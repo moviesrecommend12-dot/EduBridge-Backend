@@ -1,0 +1,221 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Orbiet Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
+</head>
+
+<body class="orbiet-admin">
+    <div class="space-backdrop" aria-hidden="true">
+        <span class="star-field star-field-one"></span>
+        <span class="star-field star-field-two"></span>
+        <span class="planet-glow"></span>
+        <span class="orbit-ring orbit-ring-one"></span>
+        <span class="orbit-ring orbit-ring-two"></span>
+    </div>
+
+    {% with current_url=request.resolver_match.url_name %}
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">
+                <span></span>
+            </div>
+            <div>
+                <h2>Orbiet</h2>
+                <p>مركز قيادة الإدارة المدرسية</p>
+            </div>
+        </div>
+
+        <nav>
+            <a href="{% url 'dashboard:home' %}" class="{% if current_url == 'home' %}active{% endif %}">
+                الرئيسية
+            </a>
+
+            <a href="{% url 'dashboard:student-list' %}" class="{% if current_url == 'student-list' or current_url == 'student-update' or current_url == 'student-delete-confirm' %}active{% endif %}">
+                الطلاب
+            </a>
+
+            <a href="{% url 'dashboard:student-create' %}" class="{% if current_url == 'student-create' %}active{% endif %}">
+                إنشاء طالب
+            </a>
+
+            <a href="{% url 'dashboard:teacher-list' %}" class="{% if current_url == 'teacher-list' or current_url == 'teacher-create' or current_url == 'teacher-update' %}active{% endif %}">
+                المعلمون
+            </a>
+
+            <a href="{% url 'dashboard:parent-list' %}" class="{% if current_url == 'parent-list' or current_url == 'parent-update' or current_url == 'parent-delete-confirm' %}active{% endif %}">
+                أولياء الأمور
+            </a>
+
+            <a href="{% url 'dashboard:classroom-list' %}" class="{% if current_url == 'classroom-list' or current_url == 'classroom-create' or current_url == 'classroom-update' %}active{% endif %}">
+                الصفوف
+            </a>
+
+            <a href="{% url 'dashboard:section-list' %}" class="{% if current_url == 'section-list' or current_url == 'section-create' or current_url == 'section-update' %}active{% endif %}">
+                الشعب
+            </a>
+
+            <a href="{% url 'dashboard:subject-list' %}" class="{% if current_url == 'subject-list' or current_url == 'subject-create' or current_url == 'subject-update' %}active{% endif %}">
+                المواد
+            </a>
+
+            <a href="{% url 'dashboard:academic-year-list' %}" class="{% if current_url == 'academic-year-list' or current_url == 'academic-year-create' %}active{% endif %}">
+                السنوات الدراسية
+            </a>
+
+            <a href="{% url 'dashboard:teaching-assignment-list' %}" class="{% if current_url == 'teaching-assignment-list' or current_url == 'teaching-assignment-create' or current_url == 'teaching-assignment-update' %}active{% endif %}">
+                إسناد المعلمين
+            </a>
+
+            <a href="{% url 'dashboard:schedule-list' %}" class="{% if current_url == 'schedule-list' or current_url == 'schedule-create' or current_url == 'schedule-update' %}active{% endif %}">
+                الجداول
+            </a>
+
+            <a href="{% url 'dashboard:attendance-list' %}" class="{% if current_url == 'attendance-list' or current_url == 'attendance-create' or current_url == 'attendance-update' %}active{% endif %}">
+                الحضور
+            </a>
+
+            <a href="{% url 'dashboard:grade-list' %}" class="{% if current_url == 'grade-list' or current_url == 'grade-create' or current_url == 'grade-update' %}active{% endif %}">
+                الدرجات
+            </a>
+
+            <a href="{% url 'dashboard:promotion-results' %}" class="{% if current_url == 'promotion-results' or current_url == 'promotion-result-detail' %}active{% endif %}">
+                الترفيع السنوي
+            </a>
+
+            <a href="{% url 'dashboard:assignment-list' %}" class="{% if current_url == 'assignment-list' or current_url == 'assignment-create' or current_url == 'assignment-update' %}active{% endif %}">
+                الواجبات
+            </a>
+
+            <a href="{% url 'dashboard:assignment-submission-list' %}" class="{% if current_url == 'assignment-submission-list' or current_url == 'assignment-submission-detail' or current_url == 'assignment-submission-review' %}active{% endif %}">
+                تسليمات الواجبات
+            </a>
+
+            <a href="{% url 'dashboard:uploaded-file-list' %}" class="{% if current_url == 'uploaded-file-list' or current_url == 'uploaded-file-create' or current_url == 'uploaded-file-detail' %}active{% endif %}">
+                الملفات
+            </a>
+
+            <a href="{% url 'dashboard:announcement-list' %}" class="{% if current_url == 'announcement-list' or current_url == 'announcement-create' or current_url == 'announcement-update' %}active{% endif %}">
+                الإعلانات
+            </a>
+
+            <a href="{% url 'dashboard:notification-list' %}" class="{% if current_url == 'notification-list' %}active{% endif %}">
+                الإشعارات
+            </a>
+
+            <a href="{% url 'dashboard:notification-broadcast' %}" class="{% if current_url == 'notification-broadcast' %}active{% endif %}">
+                إرسال إشعار
+            </a>
+
+            <a href="{% url 'dashboard:notification-reminder-center' %}" class="{% if current_url == 'notification-reminder-center' %}active{% endif %}">
+                تذكيرات الإشعارات
+            </a>
+
+            <a href="{% url 'dashboard:notification-preference-list' %}" class="{% if current_url == 'notification-preference-list' or current_url == 'notification-preference-update' %}active{% endif %}">
+                تفضيلات الإشعارات
+            </a>
+
+            <a href="{% url 'dashboard:notification-template-list' %}" class="{% if current_url == 'notification-template-list' or current_url == 'notification-template-update' %}active{% endif %}">
+                قوالب الإشعارات
+            </a>
+
+            <a href="{% url 'dashboard:push-device-list' %}" class="{% if current_url == 'push-device-list' %}active{% endif %}">
+                أجهزة Push
+            </a>
+
+            <a href="{% url 'dashboard:push-delivery-list' %}" class="{% if current_url == 'push-delivery-list' %}active{% endif %}">
+                سجل إرسال Push
+            </a>
+
+            <a href="{% url 'dashboard:push-diagnostics' %}" class="{% if current_url == 'push-diagnostics' %}active{% endif %}">
+                تشخيص Push
+            </a>
+
+            <a href="{% url 'dashboard:push-flutter-contract' %}" class="{% if current_url == 'push-flutter-contract' %}active{% endif %}">
+                ربط Flutter Push
+            </a>
+
+            <a href="{% url 'dashboard:invoice-list' %}" class="{% if current_url == 'invoice-list' or current_url == 'invoice-create' or current_url == 'invoice-update' %}active{% endif %}">
+                الفواتير
+            </a>
+
+            <a href="{% url 'dashboard:payment-list' %}" class="{% if current_url == 'payment-list' %}active{% endif %}">
+                المدفوعات
+            </a>
+
+            <a href="{% url 'dashboard:receipt-list' %}" class="{% if current_url == 'receipt-list' or current_url == 'receipt-detail' %}active{% endif %}">
+                الإيصالات
+            </a>
+
+            <a href="/admin/notifications/notification/">
+                Django Admin
+            </a>
+        </nav>
+    </aside>
+    {% endwith %}
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <span class="eyebrow">Admin Control Deck</span>
+                <h1>{% block page_title %}لوحة التحكم{% endblock %}</h1>
+            </div>
+
+            <div class="user-info">
+                <div class="user-chip">
+                    <span class="user-avatar" aria-hidden="true"></span>
+                    <span>
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </span>
+                </div>
+
+                <a href="/admin/logout/">
+                    تسجيل الخروج
+                </a>
+            </div>
+        </header>
+
+        <section class="content">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            var sidebar = document.querySelector(".sidebar");
+            var storageKey = "orbiet-dashboard-sidebar-scroll";
+
+            if (!sidebar) {
+                return;
+            }
+
+            var savedScroll = sessionStorage.getItem(storageKey);
+            if (savedScroll !== null) {
+                sidebar.scrollTop = Number(savedScroll);
+            } else {
+                var activeLink = sidebar.querySelector("nav a.active");
+                if (activeLink) {
+                    activeLink.scrollIntoView({ block: "center" });
+                }
+            }
+
+            sidebar.addEventListener("scroll", function () {
+                sessionStorage.setItem(storageKey, String(sidebar.scrollTop));
+            }, { passive: true });
+
+            sidebar.addEventListener("click", function (event) {
+                var link = event.target.closest("a");
+                if (link) {
+                    sessionStorage.setItem(storageKey, String(sidebar.scrollTop));
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

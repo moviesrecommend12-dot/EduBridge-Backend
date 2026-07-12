@@ -1,0 +1,76 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}المعلمون{% endblock %}
+{% block page_title %}إدارة المعلمين{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert success">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            placeholder="ابحث بالاسم أو رقم الموظف أو التخصص"
+        >
+        <button type="submit" class="primary-button">بحث</button>
+    </form>
+
+    <a
+        href="{% url 'dashboard:teacher-create' %}"
+        class="primary-button"
+    >
+        إضافة معلم
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>رقم الموظف</th>
+                <th>الاسم</th>
+                <th>اسم المستخدم</th>
+                <th>التخصص</th>
+                <th>الهاتف</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for teacher in teachers %}
+                <tr>
+                    <td>{{ teacher.employee_code }}</td>
+                    <td>
+                        {{ teacher.user.get_full_name|default:teacher.user.username }}
+                    </td>
+                    <td>{{ teacher.user.username }}</td>
+                    <td>{{ teacher.specialization|default:"-" }}</td>
+                    <td>{{ teacher.user.phone|default:"-" }}</td>
+                    <td>
+                        <a
+                            href="{% url 'dashboard:teacher-update' teacher.id %}"
+                            class="table-link"
+                        >
+                            تعديل
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-row">
+                        لا يوجد معلمون.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}إسناد المعلمين{% endblock %}
+{% block page_title %}إدارة إسناد المعلمين{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <a href="{% url 'dashboard:teaching-assignment-create' %}" class="primary-button">
+        إضافة إسناد
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>المعلم</th>
+                <th>الصف</th>
+                <th>الشعبة</th>
+                <th>المادة</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for assignment in teaching_assignments %}
+            <tr>
+                <td>{{ assignment.teacher.user.get_full_name|default:assignment.teacher.user.username }}</td>
+                <td>{{ assignment.classroom.name }}</td>
+                <td>{{ assignment.section.name }}</td>
+                <td>{{ assignment.subject.name }}</td>
+                <td>
+                    {% if assignment.is_active %}
+                    <span class="status active">فعال</span>
+                    {% else %}
+                    <span class="status used">غير فعال</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:teaching-assignment-update' assignment.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <form method="post" action="{% url 'dashboard:teaching-assignment-delete' assignment.id %}"
+                            onsubmit="return confirm('هل تريد حذف الإسناد التدريسي؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="empty-row">
+                    لا توجد إسنادات تدريسية.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

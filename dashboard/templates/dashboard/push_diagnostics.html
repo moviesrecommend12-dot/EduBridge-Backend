@@ -1,0 +1,164 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}تشخيص Push{% endblock %}
+{% block page_title %}تشخيص Push{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>الأجهزة</h3>
+        <strong>{{ device_summary.total }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>الأجهزة الفعالة</h3>
+        <strong>{{ device_summary.active }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Token غير صالح</h3>
+        <strong>{{ device_summary.active_invalid }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>إرسال آخر 24 ساعة</h3>
+        <strong>{{ delivery_summary.last_24h }}</strong>
+    </div>
+</div>
+
+<div class="form-card receipt-card">
+    <div class="form-heading">
+        <h2>حالة الإعدادات</h2>
+        <p>ملخص سريع لما يحتاجه إرسال Push للعمل بشكل فعلي.</p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span>FCM Server Key</span>
+            <strong>{% if fcm_configured %}موجود{% else %}غير مضبوط{% endif %}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>FCM API URL</span>
+            <strong>{{ fcm_api_url }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>FCM Timeout</span>
+            <strong>{{ fcm_timeout_seconds }} ثانية</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Celery installed</span>
+            <strong>{% if celery_installed %}نعم{% else %}لا{% endif %}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Push عبر Celery</span>
+            <strong>{% if push_uses_celery %}مفعل{% else %}غير مفعل{% endif %}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Celery Broker</span>
+            <strong>{{ celery_broker_url }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>تذكيرات Celery Beat</span>
+            <strong>{% if reminders_use_celery_beat %}مفعلة{% else %}غير مفعلة{% endif %}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>وقت التذكيرات</span>
+            <strong>{{ reminders_beat_time }}</strong>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Android</h3>
+        <strong>{{ device_summary.android }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>iOS</h3>
+        <strong>{{ device_summary.ios }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Web</h3>
+        <strong>{{ device_summary.web }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>غير فعالة</h3>
+        <strong>{{ device_summary.inactive }}</strong>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>نجاح 24h</h3>
+        <strong>{{ delivery_summary.sent_24h }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Failed 24h</h3>
+        <strong>{{ delivery_summary.failed_24h }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Skipped 24h</h3>
+        <strong>{{ delivery_summary.skipped_24h }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Invalid 24h</h3>
+        <strong>{{ delivery_summary.invalid_24h }}</strong>
+    </div>
+</div>
+
+<div class="page-actions">
+    <a href="{% url 'dashboard:push-device-list' %}" class="primary-button">أجهزة Push</a>
+    <a href="{% url 'dashboard:push-delivery-list' %}" class="secondary-button">سجل الإرسال</a>
+    <a href="{% url 'dashboard:notification-broadcast' %}" class="secondary-button">إرسال إشعار</a>
+
+    <form method="post" action="{% url 'dashboard:push-deactivate-invalid-devices' %}">
+        {% csrf_token %}
+        <button type="submit" class="secondary-button">
+            تعطيل الأجهزة غير الصالحة
+        </button>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>المستخدم</th>
+                <th>الحالة</th>
+                <th>Error code</th>
+                <th>Error message</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for delivery in recent_errors %}
+            <tr>
+                <td>{{ delivery.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ delivery.notification.recipient.get_full_name|default:delivery.notification.recipient.username }}</td>
+                <td><span class="status used">{{ delivery.status }}</span></td>
+                <td>{{ delivery.error_code }}</td>
+                <td>{{ delivery.error_message|truncatechars:70 }}</td>
+                <td>
+                    <a href="{% url 'dashboard:push-delivery-detail' delivery.id %}">تفاصيل</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="empty-row">لا توجد أخطاء Push مسجلة.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

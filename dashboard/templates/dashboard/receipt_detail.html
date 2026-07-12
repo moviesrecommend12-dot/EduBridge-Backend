@@ -1,0 +1,98 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}إيصال {{ receipt.receipt_number }}{% endblock %}
+{% block page_title %}تفاصيل الإيصال{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+    <a href="{% url 'dashboard:receipt-list' %}" class="secondary-button">
+        رجوع إلى الإيصالات
+    </a>
+
+    <button type="button" class="primary-button" onclick="window.print()">
+        طباعة
+    </button>
+</div>
+
+<div class="form-card receipt-card">
+    <div class="form-heading">
+        <h2>{{ receipt.receipt_number }}</h2>
+        <p>صدر بتاريخ {{ receipt.issued_at|date:"Y-m-d H:i" }}</p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span>الطالب</span>
+            <strong>
+                {{ receipt.payment.invoice.student.user.get_full_name|default:receipt.payment.invoice.student.user.username }}
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <span>رقم الطالب</span>
+            <strong>{{ receipt.payment.invoice.student.student_code }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الصف</span>
+            <strong>{{ receipt.payment.invoice.student.classroom|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الشعبة</span>
+            <strong>{{ receipt.payment.invoice.student.section|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>ولي الأمر</span>
+            <strong>
+                {% if receipt.payment.parent %}
+                {{ receipt.payment.parent.user.get_full_name|default:receipt.payment.parent.user.username }}
+                {% else %}
+                -
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <span>الفاتورة</span>
+            <strong>{{ receipt.payment.invoice.title }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>المبلغ</span>
+            <strong>{{ receipt.payment.amount }} {{ receipt.payment.currency|upper }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>تاريخ الدفع</span>
+            <strong>{{ receipt.payment.paid_at|date:"Y-m-d H:i"|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>حالة الدفع</span>
+            <strong>{{ receipt.payment.get_status_display }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Stripe Session</span>
+            <strong>{{ receipt.payment.stripe_checkout_session_id|default:"-" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Payment Intent</span>
+            <strong>{{ receipt.payment.stripe_payment_intent_id|default:"-" }}</strong>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="{% url 'dashboard:invoice-update' receipt.payment.invoice.id %}" class="primary-button">
+            فتح الفاتورة
+        </a>
+
+        <a href="{% url 'dashboard:payment-list' %}" class="secondary-button">
+            المدفوعات
+        </a>
+    </div>
+</div>
+{% endblock %}

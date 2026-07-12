@@ -1,0 +1,125 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}سجل إرسال Push{% endblock %}
+{% block page_title %}سجل إرسال Push{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>الإجمالي</h3>
+        <strong>{{ summary.total }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Sent</h3>
+        <strong>{{ summary.sent }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Failed</h3>
+        <strong>{{ summary.failed }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Skipped</h3>
+        <strong>{{ summary.skipped }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Invalid token</h3>
+        <strong>{{ summary.invalid }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Pending</h3>
+        <strong>{{ summary.pending }}</strong>
+    </div>
+</div>
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="user">
+            <option value="">كل المستخدمين</option>
+            {% for user in users %}
+            <option value="{{ user.id }}" {% if selected_user == user.id %}selected{% endif %}>
+                {{ user.get_full_name|default:user.username }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="status">
+            <option value="">كل الحالات</option>
+            {% for status_value, status_label in status_choices %}
+            <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>
+                {{ status_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="platform">
+            <option value="">كل المنصات</option>
+            {% for platform_value, platform_label in platform_choices %}
+            <option value="{{ platform_value }}" {% if selected_platform == platform_value %}selected{% endif %}>
+                {{ platform_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <input type="text" name="error_code" placeholder="Error code" value="{{ selected_error_code }}">
+        <input type="date" name="date_from" value="{{ selected_date_from }}">
+        <input type="date" name="date_to" value="{{ selected_date_to }}">
+
+        <button type="submit" class="primary-button">فلترة</button>
+        <a href="{% url 'dashboard:push-delivery-list' %}" class="secondary-button">إعادة ضبط</a>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>المستخدم</th>
+                <th>الإشعار</th>
+                <th>الجهاز</th>
+                <th>الحالة</th>
+                <th>Message ID</th>
+                <th>Error code</th>
+                <th>Error message</th>
+                <th>وقت المحاولة</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for delivery in deliveries %}
+            <tr>
+                <td>{{ delivery.notification.recipient.get_full_name|default:delivery.notification.recipient.username }}</td>
+                <td>{{ delivery.notification.title }}</td>
+                <td>
+                    <span class="code-badge">{{ delivery.device.platform }}</span>
+                    {{ delivery.device.app_name }}
+                </td>
+                <td>
+                    {% if delivery.status == "SENT" %}
+                    <span class="status active">Sent</span>
+                    {% elif delivery.status == "SKIPPED" %}
+                    <span class="status pending">Skipped</span>
+                    {% elif delivery.status == "PENDING" %}
+                    <span class="status pending">Pending</span>
+                    {% else %}
+                    <span class="status used">{{ delivery.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ delivery.provider_message_id|truncatechars:28|default:"-" }}</td>
+                <td>{{ delivery.error_code|default:"-" }}</td>
+                <td>{{ delivery.error_message|truncatechars:42|default:"-" }}</td>
+                <td>{{ delivery.attempted_at|date:"Y-m-d H:i"|default:"-" }}</td>
+                <td>{{ delivery.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'dashboard:push-delivery-detail' delivery.id %}">تفاصيل</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" class="empty-row">لا يوجد سجل إرسال Push مطابق.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

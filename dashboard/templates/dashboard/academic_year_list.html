@@ -1,0 +1,70 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}السنوات الدراسية{% endblock %}
+{% block page_title %}السنوات الدراسية{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <div></div>
+    <a href="{% url 'dashboard:academic-year-create' %}" class="primary-button">
+        إضافة سنة دراسية
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>السنة</th>
+                <th>تاريخ البداية</th>
+                <th>تاريخ النهاية</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for academic_year in academic_years %}
+            <tr>
+                <td>{{ academic_year.name }}</td>
+                <td>{{ academic_year.start_date|date:"Y-m-d" }}</td>
+                <td>{{ academic_year.end_date|date:"Y-m-d" }}</td>
+                <td>
+                    {% if academic_year.is_active %}
+                    <span class="status active">نشطة</span>
+                    {% else %}
+                    <span class="status pending">غير نشطة</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not academic_year.is_active %}
+                    <form method="post" action="{% url 'dashboard:academic-year-set-active' academic_year.id %}">
+                        {% csrf_token %}
+                        <button class="link-button table-link" type="submit">
+                            تعيين كنشطة
+                        </button>
+                    </form>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="empty-row">
+                    لا توجد سنوات دراسية.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

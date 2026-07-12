@@ -1,0 +1,82 @@
+{% load i18n static %}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.errors %}{% translate "Error:" %} {% endif %}Orbiet Admin Login</title>
+    <link rel="stylesheet" href="{% static 'dashboard/admin-login.css' %}">
+    {{ form.media }}
+</head>
+<body class="orbiet-login">
+    <div class="login-space" aria-hidden="true">
+        <span class="login-stars"></span>
+        <span class="login-planet"></span>
+        <span class="login-orbit login-orbit-one"></span>
+        <span class="login-orbit login-orbit-two"></span>
+    </div>
+
+    <main class="login-shell">
+        <section class="login-panel" aria-label="Orbiet admin login">
+            <div class="login-brand">
+                <div class="login-brand-mark" aria-hidden="true">
+                    <span></span>
+                </div>
+                <div>
+                    <p>Orbiet Command Deck</p>
+                    <h1>تسجيل دخول الإدارة</h1>
+                </div>
+            </div>
+
+            <p class="login-copy">
+                بوابة تحكم Orbiet مخصصة للمدراء فقط.
+            </p>
+
+            {% if form.errors and not form.non_field_errors %}
+            <p class="login-error">
+                يرجى تصحيح بيانات الدخول.
+            </p>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                <p class="login-error">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+            {% if user.is_authenticated %}
+            <p class="login-error">
+                أنت مسجل الدخول باسم {{ username }} لكن هذا الحساب غير مخول للوصول لهذه الصفحة.
+            </p>
+            {% endif %}
+
+            <form action="{{ app_path }}" method="post" id="login-form" class="login-form">
+                {% csrf_token %}
+
+                <div class="login-field">
+                    <label for="{{ form.username.id_for_label }}">اسم المستخدم</label>
+                    {{ form.username.errors }}
+                    {{ form.username }}
+                </div>
+
+                <div class="login-field">
+                    <label for="{{ form.password.id_for_label }}">كلمة المرور</label>
+                    {{ form.password.errors }}
+                    {{ form.password }}
+                    <input type="hidden" name="next" value="{{ next }}">
+                </div>
+
+                <button type="submit" class="login-button">
+                    دخول لوحة التحكم
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <span>Admin access only</span>
+                <a href="{% url 'dashboard:home' %}">العودة للداشبورد</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

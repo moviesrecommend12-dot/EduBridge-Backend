@@ -1,0 +1,47 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}
+إنشاء طالب
+{% endblock %}
+
+{% block page_title %}
+إنشاء حساب طالب جديد
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert success">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="form-card">
+    <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.errors %}
+                    <div class="field-errors">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="primary-button">
+            إنشاء الطالب
+        </button>
+    </form>
+</div>
+
+{% endblock %}

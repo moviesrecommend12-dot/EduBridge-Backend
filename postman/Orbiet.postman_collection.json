@@ -1,0 +1,786 @@
+{
+  "info": {
+    "name": "Orbiet Backend API",
+    "_postman_id": "8c7a7ac0-7b38-4c83-9a7b-5c6b0b5d8a30",
+    "description": "Postman collection for Orbiet Django backend APIs. Import this file, run Login, then use the saved access_token for protected requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access) pm.collectionVariables.set('access_token', json.access);",
+                  "if (json.refresh) pm.collectionVariables.set('refresh_token', json.refresh);",
+                  "if (json.user && json.user.role) pm.collectionVariables.set('last_role', json.user.role);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{base_url}}/api/accounts/login/"
+          },
+          "response": []
+        },
+        {
+          "name": "Me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/accounts/me/"
+          },
+          "response": []
+        },
+        {
+          "name": "Parent Register",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"parent_demo\",\n  \"password\": \"password123\",\n  \"first_name\": \"Parent\",\n  \"last_name\": \"Demo\",\n  \"email\": \"parent@example.com\",\n  \"phone\": \"0999999999\",\n  \"national_id\": \"123456789\",\n  \"address\": \"Demo address\",\n  \"linking_code\": \"{{linking_code}}\",\n  \"relationship\": \"Father\"\n}"
+            },
+            "url": "{{base_url}}/api/accounts/parent/register/"
+          },
+          "response": []
+        },
+        {
+          "name": "Parent Children",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/accounts/parent/children/"
+          },
+          "response": []
+        },
+        {
+          "name": "Parent Child Detail",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/accounts/parent/children/{{student_id}}/"
+          },
+          "response": []
+        },
+        {
+          "name": "Student Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/accounts/student/profile/"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Academics - Teacher",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Teacher Assignments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/teacher/assignments/"
+          },
+          "response": []
+        },
+        {
+          "name": "Teacher Students",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/teacher/students/"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student\": {{student_id}},\n  \"subject\": {{subject_id}},\n  \"date\": \"2026-06-28\",\n  \"status\": \"PRESENT\",\n  \"note\": \"Created from Postman\"\n}"
+            },
+            "url": "{{base_url}}/api/academics/teacher/attendance/create/"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Grade",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student\": {{student_id}},\n  \"subject\": {{subject_id}},\n  \"title\": \"Quiz 1\",\n  \"score\": \"18.00\",\n  \"max_score\": \"20.00\",\n  \"note\": \"Created from Postman\",\n  \"date\": \"2026-06-28\"\n}"
+            },
+            "url": "{{base_url}}/api/academics/teacher/grades/create/"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classroom\": {{classroom_id}},\n  \"section\": {{section_id}},\n  \"subject\": {{subject_id}},\n  \"title\": \"Homework 1\",\n  \"description\": \"Solve exercises 1-5\",\n  \"due_date\": \"2026-07-05\"\n}"
+            },
+            "url": "{{base_url}}/api/academics/teacher/assignments/create/"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Announcement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classroom\": {{classroom_id}},\n  \"section\": {{section_id}},\n  \"title\": \"Exam Reminder\",\n  \"message\": \"Please prepare for tomorrow's exam.\"\n}"
+            },
+            "url": "{{base_url}}/api/academics/teacher/announcements/create/"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "assignment",
+                  "value": "{{assignment_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "classroom",
+                  "value": "{{classroom_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "section",
+                  "value": "{{section_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject",
+                  "value": "{{subject_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Teacher File",
+                  "type": "text"
+                },
+                {
+                  "key": "file_type",
+                  "value": "PDF",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": "{{base_url}}/api/academics/teacher/files/upload/"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Academics - Student",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Student Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/student/schedule/"
+          },
+          "response": []
+        },
+        {
+          "name": "Student Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/student/attendance/"
+          },
+          "response": []
+        },
+        {
+          "name": "Student Grades",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/student/grades/"
+          },
+          "response": []
+        },
+        {
+          "name": "Student Assignments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/student/assignments/"
+          },
+          "response": []
+        },
+        {
+          "name": "Student Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/student/files/"
+          },
+          "response": []
+        },
+        {
+          "name": "Student Announcements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/student/announcements/"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Academics - Parent",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Child Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/parent/children/{{student_id}}/schedule/"
+          },
+          "response": []
+        },
+        {
+          "name": "Child Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/parent/children/{{student_id}}/attendance/"
+          },
+          "response": []
+        },
+        {
+          "name": "Child Grades",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/parent/children/{{student_id}}/grades/"
+          },
+          "response": []
+        },
+        {
+          "name": "Child Assignments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/parent/children/{{student_id}}/assignments/"
+          },
+          "response": []
+        },
+        {
+          "name": "Child Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/parent/children/{{student_id}}/files/"
+          },
+          "response": []
+        },
+        {
+          "name": "Child Announcements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/academics/parent/children/{{student_id}}/announcements/"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Finance",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Parent Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/finance/parent/invoices/"
+          },
+          "response": []
+        },
+        {
+          "name": "Parent Child Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/finance/parent/children/{{student_id}}/invoices/"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Checkout Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/finance/parent/invoices/{{invoice_id}}/create-checkout-session/"
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Checkout Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{checkout_session_id}}\"\n}"
+            },
+            "url": "{{base_url}}/api/finance/parent/payments/confirm/"
+          },
+          "response": []
+        },
+        {
+          "name": "Parent Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/finance/parent/payments/"
+          },
+          "response": []
+        },
+        {
+          "name": "Parent Receipts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/finance/parent/receipts/"
+          },
+          "response": []
+        },
+        {
+          "name": "Parent Receipt Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/finance/parent/receipts/{{receipt_id}}/"
+          },
+          "response": []
+        },
+        {
+          "name": "Stripe Webhook Test Payload",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"checkout.session.completed\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"{{checkout_session_id}}\",\n      \"payment_intent\": \"pi_test_from_postman\"\n    }\n  }\n}"
+            },
+            "url": "{{base_url}}/api/finance/stripe/webhook/"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Notification List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/notifications/"
+          },
+          "response": []
+        },
+        {
+          "name": "Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/notifications/unread-count/"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Notification Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/api/notifications/{{notification_id}}/read/"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark All Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/api/notifications/read-all/"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Room List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/chat/rooms/"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": {{student_id}},\n  \"teacher_id\": {{teacher_id}}\n}"
+            },
+            "url": "{{base_url}}/api/chat/rooms/create/"
+          },
+          "response": []
+        },
+        {
+          "name": "Room Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/chat/rooms/{{room_id}}/messages/"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello from Postman\"\n}"
+            },
+            "url": "{{base_url}}/api/chat/rooms/{{room_id}}/messages/send/"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Room Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/api/chat/rooms/{{room_id}}/read/"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "WebSocket Instructions",
+      "item": [
+        {
+          "name": "Chat WebSocket URL",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/chat/rooms/"
+          },
+          "response": [],
+          "description": "Use Postman WebSocket tab, not a normal HTTP request. URL: ws://127.0.0.1:8000/ws/chat/{{room_id}}/?token={{access_token}}\n\nSend message body:\n{\n  \"type\": \"chat_message\",\n  \"content\": \"Hello from WebSocket\"\n}\n\nMark read body:\n{\n  \"type\": \"mark_read\"\n}\n\nExpected first message:\n{\n  \"type\": \"connection_established\",\n  \"room_id\": 1,\n  \"user_id\": 1,\n  \"message\": \"WebSocket connected successfully.\"\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "admain",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "password123",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "student_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "teacher_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "classroom_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "section_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "subject_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "assignment_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "invoice_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "checkout_session_id",
+      "value": "cs_test_replace_me",
+      "type": "string"
+    },
+    {
+      "key": "payment_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "receipt_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "notification_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "room_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "linking_code",
+      "value": "REPLACE_ME",
+      "type": "string"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الفواتير{% endblock %}
+{% block page_title %}إدارة الفواتير{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <input type="text" name="q" value="{{ query }}" placeholder="ابحث باسم الطالب أو رقم الطالب أو عنوان الفاتورة">
+
+        <select name="status">
+            <option value="">كل الحالات</option>
+            <option value="UNPAID" {% if status_filter == "UNPAID" %}selected{% endif %}>غير مدفوعة</option>
+            <option value="PAID" {% if status_filter == "PAID" %}selected{% endif %}>مدفوعة</option>
+            <option value="CANCELLED" {% if status_filter == "CANCELLED" %}selected{% endif %}>ملغاة</option>
+        </select>
+
+        <button type="submit" class="primary-button">
+            بحث
+        </button>
+    </form>
+
+    <a href="{% url 'dashboard:invoice-create' %}" class="primary-button">
+        إضافة فاتورة
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>الطالب</th>
+                <th>الفاتورة</th>
+                <th>المبلغ</th>
+                <th>تاريخ الاستحقاق</th>
+                <th>الحالة</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>
+                    {{ invoice.student.user.get_full_name|default:invoice.student.user.username }}
+                    <span class="code-badge">{{ invoice.student.student_code }}</span>
+                </td>
+                <td>{{ invoice.title }}</td>
+                <td>{{ invoice.amount }} {{ invoice.currency|upper }}</td>
+                <td>{{ invoice.due_date|date:"Y-m-d"|default:"-" }}</td>
+                <td>
+                    {% if invoice.status == "PAID" %}
+                    <span class="status active">مدفوعة</span>
+                    {% elif invoice.status == "CANCELLED" %}
+                    <span class="status used">ملغاة</span>
+                    {% else %}
+                    <span class="status pending">غير مدفوعة</span>
+                    {% endif %}
+                </td>
+                <td>{{ invoice.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:invoice-update' invoice.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <form method="post" action="{% url 'dashboard:invoice-delete' invoice.id %}"
+                            onsubmit="return confirm('هل تريد حذف الفاتورة؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="empty-row">
+                    لا توجد فواتير.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

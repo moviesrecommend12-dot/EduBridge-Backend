@@ -1,0 +1,139 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الحضور{% endblock %}
+{% block page_title %}إدارة الحضور{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="student">
+            <option value="">كل الطلاب</option>
+            {% for student in students %}
+            <option value="{{ student.id }}" {% if selected_student == student.id %}selected{% endif %}>
+                {{ student.user.get_full_name|default:student.user.username }} - {{ student.student_code }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="classroom">
+            <option value="">كل الصفوف</option>
+            {% for classroom in classrooms %}
+            <option value="{{ classroom.id }}" {% if selected_classroom == classroom.id %}selected{% endif %}>
+                {{ classroom.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="subject">
+            <option value="">كل المواد</option>
+            {% for subject in subjects %}
+            <option value="{{ subject.id }}" {% if selected_subject == subject.id %}selected{% endif %}>
+                {{ subject.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <input type="date" name="date" value="{{ selected_date }}">
+
+        <select name="status">
+            <option value="">كل الحالات</option>
+            {% for status_value, status_label in status_choices %}
+            <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>
+                {{ status_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="primary-button">
+            فلترة
+        </button>
+
+        <a href="{% url 'dashboard:attendance-list' %}" class="secondary-button">
+            إعادة ضبط
+        </a>
+    </form>
+
+    <a href="{% url 'dashboard:attendance-create' %}" class="primary-button">
+        إضافة حضور
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>الطالب</th>
+                <th>الصف</th>
+                <th>الشعبة</th>
+                <th>المادة</th>
+                <th>المعلم</th>
+                <th>الحالة</th>
+                <th>الملاحظة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for attendance in attendance_records %}
+            <tr>
+                <td>{{ attendance.date|date:"Y-m-d" }}</td>
+                <td>
+                    {{ attendance.student.user.get_full_name|default:attendance.student.user.username }}
+                    <span class="code-badge">{{ attendance.student.student_code }}</span>
+                </td>
+                <td>{{ attendance.student.classroom|default:"-" }}</td>
+                <td>{{ attendance.student.section|default:"-" }}</td>
+                <td>{{ attendance.subject.name }}</td>
+                <td>
+                    {% if attendance.teacher %}
+                    {{ attendance.teacher.user.get_full_name|default:attendance.teacher.user.username }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if attendance.status == "PRESENT" %}
+                    <span class="status active">{{ attendance.status_name }}</span>
+                    {% elif attendance.status == "LATE" or attendance.status == "EXCUSED" %}
+                    <span class="status pending">{{ attendance.status_name }}</span>
+                    {% else %}
+                    <span class="status used">{{ attendance.status_name }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ attendance.note|default:"-" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:attendance-update' attendance.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <form method="post" action="{% url 'dashboard:attendance-delete' attendance.id %}"
+                            onsubmit="return confirm('هل تريد حذف سجل الحضور؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="empty-row">
+                    لا توجد سجلات حضور.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

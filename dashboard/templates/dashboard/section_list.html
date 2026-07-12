@@ -1,0 +1,62 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الشعب{% endblock %}
+{% block page_title %}إدارة الشعب{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <a href="{% url 'dashboard:section-create' %}" class="primary-button">
+        إضافة شعبة
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>الشعبة</th>
+                <th>الصف</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for section in sections %}
+            <tr>
+                <td>{{ section.name }}</td>
+                <td>{{ section.classroom.name }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:section-update' section.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <form method="post" action="{% url 'dashboard:section-delete' section.id %}"
+                            onsubmit="return confirm('هل تريد حذف الشعبة؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="empty-row">
+                    لا توجد شعب.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

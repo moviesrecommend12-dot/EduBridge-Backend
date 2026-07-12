@@ -1,0 +1,100 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}تفاصيل نتيجة طالب{% endblock %}
+{% block page_title %}تفاصيل نتيجة طالب{% endblock %}
+
+{% block content %}
+
+<div class="page-actions">
+    <a href="{% url 'dashboard:promotion-results' %}?academic_year={{ result.academic_year.id }}" class="secondary-button">
+        رجوع للنتائج
+    </a>
+</div>
+
+<div class="form-card receipt-card">
+    <div class="form-heading">
+        <h2>{{ result.student.user.get_full_name|default:result.student.user.username }}</h2>
+        <p>{{ result.academic_year.name }}</p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span>رقم الطالب</span>
+            <strong>{{ result.student.student_code }}</strong>
+        </div>
+        <div class="detail-item">
+            <span>الصف الحالي</span>
+            <strong>{{ result.student.classroom.name|default:"-" }}</strong>
+        </div>
+        <div class="detail-item">
+            <span>الشعبة</span>
+            <strong>{{ result.student.section.name|default:"-" }}</strong>
+        </div>
+        <div class="detail-item">
+            <span>المعدل العام</span>
+            <strong>{{ result.average_percentage|default:"-" }}</strong>
+        </div>
+        <div class="detail-item">
+            <span>عدد المواد الراسبة</span>
+            <strong>{{ result.failed_subjects_count }}</strong>
+        </div>
+        <div class="detail-item">
+            <span>الحالة</span>
+            <strong>{{ result.status_name }}</strong>
+        </div>
+        <div class="detail-item">
+            <span>النشر</span>
+            <strong>
+                {% if result.is_published %}
+                منشورة - {{ result.published_at|date:"Y-m-d H:i" }}
+                {% else %}
+                غير منشورة
+                {% endif %}
+            </strong>
+        </div>
+    </div>
+
+    <div class="form-heading">
+        <h2>سبب القرار</h2>
+        <p>{{ result.notes|default:"-" }}</p>
+    </div>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>المادة</th>
+                <th>مجموع الدرجات</th>
+                <th>المجموع الأعظمي</th>
+                <th>النسبة</th>
+                <th>راسب بالمادة</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject_result in subject_results %}
+            <tr>
+                <td>{{ subject_result.subject.name }}</td>
+                <td>{{ subject_result.average_score }}</td>
+                <td>{{ subject_result.max_score }}</td>
+                <td>{{ subject_result.percentage }}%</td>
+                <td>
+                    {% if subject_result.is_failed %}
+                    <span class="status used">نعم</span>
+                    {% else %}
+                    <span class="status active">لا</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="empty-row">
+                    لا توجد تفاصيل مواد.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

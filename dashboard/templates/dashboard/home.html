@@ -1,0 +1,84 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}
+لوحة تحكم Orbiet
+{% endblock %}
+
+{% block page_title %}
+الرئيسية
+{% endblock %}
+
+{% block content %}
+<section class="command-hero">
+    <div>
+        <span class="hero-kicker">Orbiet Command Deck</span>
+        <h2>لوحة قيادة الإدارة</h2>
+        <p>
+            متابعة الطلاب، الأكاديميات، المالية، والإشعارات من مركز تحكم واحد.
+        </p>
+    </div>
+
+    <div class="hero-actions">
+        <a href="{% url 'dashboard:student-list' %}" class="primary-button">إدارة الطلاب</a>
+        <a href="{% url 'dashboard:promotion-results' %}" class="secondary-button">الترفيع السنوي</a>
+        <a href="{% url 'dashboard:invoice-list' %}" class="secondary-button">الفواتير</a>
+    </div>
+</section>
+
+<div class="cards-grid">
+    <div class="stat-card">
+        <h3>الطلاب</h3>
+        <strong>{{ students_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>المعلمون</h3>
+        <strong>{{ teachers_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>أولياء الأمور</h3>
+        <strong>{{ parents_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>الصفوف</h3>
+        <strong>{{ classrooms_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>المواد</h3>
+        <strong>{{ subjects_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>سجلات الحضور</h3>
+        <strong>{{ attendance_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>الواجبات</h3>
+        <strong>{{ assignments_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>الفواتير</h3>
+        <strong>{{ invoices_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>الفواتير المدفوعة</h3>
+        <strong>{{ paid_invoices_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>المدفوعات الناجحة</h3>
+        <strong>{{ payments_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <h3>الإيصالات</h3>
+        <strong>{{ receipts_count }}</strong>
+    </div>
+</div>
+{% endblock %}

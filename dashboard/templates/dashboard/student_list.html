@@ -1,0 +1,152 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}
+الطلاب
+{% endblock %}
+
+{% block page_title %}
+إدارة الطلاب
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert success">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            placeholder="ابحث بالاسم أو رقم الطالب أو البريد"
+        >
+
+        <button type="submit" class="primary-button">
+            بحث
+        </button>
+
+        {% if query %}
+            <a
+                href="{% url 'dashboard:student-list' %}"
+                class="secondary-button"
+            >
+                مسح البحث
+            </a>
+        {% endif %}
+    </form>
+
+    <a
+        href="{% url 'dashboard:student-create' %}"
+        class="primary-button"
+    >
+        إضافة طالب
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>رقم الطالب</th>
+                <th>الاسم</th>
+                <th>اسم المستخدم</th>
+                <th>البريد</th>
+                <th>الصف</th>
+                <th>الشعبة</th>
+                <th>كود ولي الأمر</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for student in students %}
+                <tr>
+                    <td>{{ student.student_code }}</td>
+
+                    <td>
+                        {{ student.user.get_full_name|default:student.user.username }}
+                    </td>
+
+                    <td>{{ student.user.username }}</td>
+
+                    <td>
+                        {{ student.user.email|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ student.classroom|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ student.section|default:"-" }}
+                    </td>
+
+                    <td>
+                        {% with code=student.linking_codes.last %}
+                            {% if code %}
+                                <span class="code-badge">
+                                    {{ code.code }}
+                                </span>
+
+                                {% if code.is_used %}
+                                    <span class="status used">
+                                        مستخدم
+                                    </span>
+                                {% else %}
+                                    <span class="status active">
+                                        متاح
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+
+                    <td>
+                        <div class="table-actions">
+                            <a
+                                href="{% url 'dashboard:student-update' student.id %}"
+                                class="table-link"
+                            >
+                                تعديل
+                            </a>
+
+                            <form
+                                method="post"
+                                action="{% url 'dashboard:student-regenerate-code' student.id %}"
+                            >
+                                {% csrf_token %}
+
+                                <button type="submit" class="link-button">
+                                    كود جديد
+                                </button>
+                            </form>
+
+                            <a
+                                href="{% url 'dashboard:student-delete-confirm' student.id %}"
+                                class="delete-link"
+                            >
+                                حذف
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" class="empty-row">
+                        لا يوجد طلاب.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

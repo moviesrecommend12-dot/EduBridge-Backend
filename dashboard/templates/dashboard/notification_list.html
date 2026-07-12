@@ -1,0 +1,144 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الإشعارات{% endblock %}
+{% block page_title %}إدارة الإشعارات{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>الإجمالي</h3>
+        <strong>{{ summary.total }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>مقروء</h3>
+        <strong>{{ summary.read }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>غير مقروء</h3>
+        <strong>{{ summary.unread }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>Deep links</h3>
+        <strong>{{ summary.with_deep_link }}</strong>
+    </div>
+</div>
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="user">
+            <option value="">كل المستخدمين</option>
+            {% for user in users %}
+            <option value="{{ user.id }}" {% if selected_user == user.id %}selected{% endif %}>
+                {{ user.get_full_name|default:user.username }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="type">
+            <option value="">كل الأنواع</option>
+            {% for type_value, type_label in type_choices %}
+            <option value="{{ type_value }}" {% if selected_type == type_value %}selected{% endif %}>
+                {{ type_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="status">
+            <option value="">كل الحالات</option>
+            <option value="unread" {% if selected_status == "unread" %}selected{% endif %}>غير مقروء</option>
+            <option value="read" {% if selected_status == "read" %}selected{% endif %}>مقروء</option>
+        </select>
+
+        <input type="text" name="related_object_type" placeholder="Related object" value="{{ selected_related_object_type }}">
+        <input type="date" name="date_from" value="{{ selected_date_from }}">
+        <input type="date" name="date_to" value="{{ selected_date_to }}">
+
+        <button type="submit" class="primary-button">فلترة</button>
+        <a href="{% url 'dashboard:notification-list' %}" class="secondary-button">إعادة ضبط</a>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>المستخدم</th>
+                <th>النوع</th>
+                <th>العنوان</th>
+                <th>الرسالة</th>
+                <th>الحالة</th>
+                <th>تاريخ الإنشاء</th>
+                <th>تاريخ القراءة</th>
+                <th>المرجع</th>
+                <th>Deep link</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for notification in notifications %}
+            <tr>
+                <td>{{ notification.recipient.get_full_name|default:notification.recipient.username }}</td>
+                <td><span class="code-badge">{{ notification.type_name }}</span></td>
+                <td>{{ notification.title }}</td>
+                <td>{{ notification.message|truncatechars:90 }}</td>
+                <td>
+                    {% if notification.is_read %}
+                    <span class="status active">مقروء</span>
+                    {% else %}
+                    <span class="status pending">غير مقروء</span>
+                    {% endif %}
+                </td>
+                <td>{{ notification.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ notification.read_at|date:"Y-m-d H:i"|default:"-" }}</td>
+                <td>
+                    {% if notification.related_object_type %}
+                    {{ notification.related_object_type }} #{{ notification.related_object_id|default:"-" }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>{{ notification.deep_link|truncatechars:42|default:"-" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:notification-detail' notification.id %}">تفاصيل</a>
+
+                        <form method="post" action="{% url 'dashboard:notification-toggle-read' notification.id %}">
+                            {% csrf_token %}
+                            <button class="link-button table-link" type="submit">
+                                {% if notification.is_read %}
+                                غير مقروء
+                                {% else %}
+                                مقروء
+                                {% endif %}
+                            </button>
+                        </form>
+
+                        <form method="post" action="{% url 'dashboard:notification-delete' notification.id %}"
+                            onsubmit="return confirm('هل تريد حذف الإشعار؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" class="empty-row">
+                    لا توجد إشعارات مطابقة.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

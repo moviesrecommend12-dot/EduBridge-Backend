@@ -1,0 +1,136 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الترفيع السنوي{% endblock %}
+{% block page_title %}الترفيع السنوي{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="academic_year">
+            <option value="">اختر السنة الدراسية</option>
+            {% for academic_year in academic_years %}
+            <option value="{{ academic_year.id }}" {% if selected_academic_year == academic_year.id %}selected{% endif %}>
+                {{ academic_year.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="status">
+            <option value="">كل الحالات</option>
+            {% for status_value, status_label in status_choices %}
+            <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>
+                {{ status_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="primary-button">
+            عرض النتائج
+        </button>
+
+        <a href="{% url 'dashboard:promotion-results' %}" class="secondary-button">
+            إعادة ضبط
+        </a>
+    </form>
+
+    <form method="post" action="{% url 'dashboard:promotion-calculate' %}">
+        {% csrf_token %}
+        <input type="hidden" name="academic_year" value="{{ selected_academic_year|default:'' }}">
+        <button type="submit" class="primary-button">
+            حساب النتائج
+        </button>
+    </form>
+
+    <form method="post" action="{% url 'dashboard:promotion-publish' %}"
+        onsubmit="return confirm('هل تريد نشر النتائج وإرسال إشعارات للطلاب وأولياء الأمور؟');">
+        {% csrf_token %}
+        <input type="hidden" name="academic_year" value="{{ selected_academic_year|default:'' }}">
+        <button type="submit" class="secondary-button">
+            نشر النتائج
+        </button>
+    </form>
+</div>
+
+{% if latest_run %}
+<div class="cards-grid">
+    <div class="stat-card">
+        <h3>إجمالي الطلاب</h3>
+        <strong>{{ latest_run.total_students }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>مترفعون</h3>
+        <strong>{{ latest_run.promoted_count }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>راسبون</h3>
+        <strong>{{ latest_run.failed_count }}</strong>
+    </div>
+    <div class="stat-card">
+        <h3>بحاجة لمراجعة</h3>
+        <strong>{{ latest_run.needs_review_count }}</strong>
+    </div>
+</div>
+{% endif %}
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>الطالب</th>
+                <th>الصف الحالي</th>
+                <th>المعدل</th>
+                <th>عدد المواد الراسبة</th>
+                <th>الحالة</th>
+                <th>النشر</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.student.user.get_full_name|default:result.student.user.username }}</td>
+                <td>{{ result.student.classroom.name|default:"-" }}</td>
+                <td>{{ result.average_percentage|default:"-" }}</td>
+                <td>{{ result.failed_subjects_count }}</td>
+                <td>
+                    {% if result.status == "PROMOTED" %}
+                    <span class="status active">{{ result.status_name }}</span>
+                    {% elif result.status == "FAILED" %}
+                    <span class="status used">{{ result.status_name }}</span>
+                    {% else %}
+                    <span class="status pending">{{ result.status_name }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if result.is_published %}
+                    <span class="status active">منشورة</span>
+                    {% else %}
+                    <span class="status pending">غير منشورة</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'dashboard:promotion-result-detail' result.id %}" class="table-link">
+                        تفاصيل المواد
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="empty-row">
+                    لا توجد نتائج لهذه السنة بعد.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

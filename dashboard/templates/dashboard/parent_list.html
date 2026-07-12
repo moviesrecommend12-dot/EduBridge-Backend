@@ -1,0 +1,100 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}أولياء الأمور{% endblock %}
+{% block page_title %}إدارة أولياء الأمور{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <input type="text" name="q" value="{{ query }}" placeholder="ابحث بالاسم أو الهاتف أو الرقم الوطني">
+
+        <button type="submit" class="primary-button">
+            بحث
+        </button>
+
+        {% if query %}
+        <a href="{% url 'dashboard:parent-list' %}" class="secondary-button">
+            مسح البحث
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>الاسم</th>
+                <th>اسم المستخدم</th>
+                <th>الهاتف</th>
+                <th>البريد</th>
+                <th>الرقم الوطني</th>
+                <th>الأبناء</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for parent in parents %}
+            <tr>
+                <td>
+                    {{ parent.user.get_full_name|default:parent.user.username }}
+                </td>
+
+                <td>{{ parent.user.username }}</td>
+
+                <td>
+                    {{ parent.user.phone|default:"-" }}
+                </td>
+
+                <td>
+                    {{ parent.user.email|default:"-" }}
+                </td>
+
+                <td>
+                    {{ parent.national_id|default:"-" }}
+                </td>
+
+                <td>
+                    {% for link in parent.student_links.all %}
+                    <span class="code-badge">
+                        {{ link.student.user.get_full_name|default:link.student.student_code }}
+                    </span>
+                    {% empty %}
+                    -
+                    {% endfor %}
+                </td>
+
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:parent-update' parent.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <a href="{% url 'dashboard:parent-delete-confirm' parent.id %}" class="delete-link">
+                            حذف
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="empty-row">
+                    لا يوجد أولياء أمور.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

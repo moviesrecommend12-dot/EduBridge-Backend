@@ -1,0 +1,113 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الإعلانات{% endblock %}
+{% block page_title %}إدارة الإعلانات{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="classroom">
+            <option value="">كل الصفوف</option>
+            {% for classroom in classrooms %}
+            <option value="{{ classroom.id }}" {% if selected_classroom == classroom.id %}selected{% endif %}>
+                {{ classroom.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="section">
+            <option value="">كل الشعب</option>
+            {% for section in sections %}
+            <option value="{{ section.id }}" {% if selected_section == section.id %}selected{% endif %}>
+                {{ section }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="teacher">
+            <option value="">كل المعلمين</option>
+            {% for teacher in teachers %}
+            <option value="{{ teacher.id }}" {% if selected_teacher == teacher.id %}selected{% endif %}>
+                {{ teacher.user.get_full_name|default:teacher.user.username }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="primary-button">
+            فلترة
+        </button>
+
+        <a href="{% url 'dashboard:announcement-list' %}" class="secondary-button">
+            إعادة ضبط
+        </a>
+    </form>
+
+    <a href="{% url 'dashboard:announcement-create' %}" class="primary-button">
+        إضافة إعلان
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>العنوان</th>
+                <th>المعلم</th>
+                <th>الصف</th>
+                <th>الشعبة</th>
+                <th>نص الإعلان</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for announcement in announcements %}
+            <tr>
+                <td>{{ announcement.title }}</td>
+                <td>
+                    {% if announcement.teacher %}
+                    {{ announcement.teacher.user.get_full_name|default:announcement.teacher.user.username }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>{{ announcement.classroom.name }}</td>
+                <td>{{ announcement.section.name }}</td>
+                <td>{{ announcement.message|truncatechars:80 }}</td>
+                <td>{{ announcement.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:announcement-update' announcement.id %}" class="table-link">
+                            تعديل
+                        </a>
+
+                        <form method="post" action="{% url 'dashboard:announcement-delete' announcement.id %}"
+                            onsubmit="return confirm('هل تريد حذف الإعلان؟');">
+                            {% csrf_token %}
+                            <button class="link-button delete-link" type="submit">
+                                حذف
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="empty-row">
+                    لا توجد إعلانات.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

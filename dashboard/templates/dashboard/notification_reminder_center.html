@@ -1,0 +1,87 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}تذكيرات الإشعارات{% endblock %}
+{% block page_title %}تذكيرات الإشعارات{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="form-card">
+    <div class="form-heading">
+        <h2>تشغيل التذكيرات</h2>
+        <p>استخدم المعاينة أولًا لمعرفة عدد التذكيرات المتوقعة، ثم أرسلها عند التأكد.</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="field-errors form-errors">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        {% for field in form %}
+        <div class="form-group">
+            {{ field.label_tag }}
+            {{ field }}
+
+            {% if field.help_text %}
+            <small class="field-help">{{ field.help_text }}</small>
+            {% endif %}
+
+            {% if field.errors %}
+            <div class="field-errors">
+                {{ field.errors }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="form-actions">
+            <button type="submit" name="action" value="dry_run" class="secondary-button">
+                معاينة فقط
+            </button>
+
+            <button type="submit" name="action" value="send" class="primary-button">
+                إرسال التذكيرات
+            </button>
+
+            <a href="{% url 'dashboard:notification-list' %}" class="secondary-button">
+                رجوع للإشعارات
+            </a>
+        </div>
+    </form>
+</div>
+
+{% if result %}
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>النوع</th>
+                <th>العدد</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>تذكيرات الفواتير</td>
+                <td>{{ result.invoice_reminders }}</td>
+            </tr>
+            <tr>
+                <td>تذكيرات الواجبات</td>
+                <td>{{ result.assignment_reminders }}</td>
+            </tr>
+            <tr>
+                <td>تنبيهات الغياب المتكرر</td>
+                <td>{{ result.absence_reminders }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

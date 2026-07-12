@@ -1,0 +1,90 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}تفضيلات الإشعارات{% endblock %}
+{% block page_title %}تفضيلات الإشعارات{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="user">
+            <option value="">كل المستخدمين</option>
+            {% for user in users %}
+            <option value="{{ user.id }}" {% if selected_user == user.id %}selected{% endif %}>
+                {{ user.get_full_name|default:user.username }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="role">
+            <option value="">كل الأدوار</option>
+            {% for role_value, role_label in role_choices %}
+            <option value="{{ role_value }}" {% if selected_role == role_value %}selected{% endif %}>
+                {{ role_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="primary-button">فلترة</button>
+        <a href="{% url 'dashboard:notification-preference-list' %}" class="secondary-button">إعادة ضبط</a>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>المستخدم</th>
+                <th>الدور</th>
+                <th>Push</th>
+                <th>داخل التطبيق</th>
+                <th>الدرجات</th>
+                <th>الحضور</th>
+                <th>الواجبات</th>
+                <th>الفواتير</th>
+                <th>الشات</th>
+                <th>Quiet hours</th>
+                <th>اللغة</th>
+                <th>آخر تحديث</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for preference in preferences %}
+            <tr>
+                <td>{{ preference.user.get_full_name|default:preference.user.username }}</td>
+                <td><span class="code-badge">{{ preference.user.role }}</span></td>
+                <td>{% if preference.push_enabled %}<span class="status active">مفعل</span>{% else %}<span class="status used">متوقف</span>{% endif %}</td>
+                <td>{% if preference.in_app_enabled %}<span class="status active">مفعل</span>{% else %}<span class="status used">متوقف</span>{% endif %}</td>
+                <td>{% if preference.grade_enabled %}<span class="status active">مفعل</span>{% else %}<span class="status used">متوقف</span>{% endif %}</td>
+                <td>{% if preference.attendance_enabled %}<span class="status active">مفعل</span>{% else %}<span class="status used">متوقف</span>{% endif %}</td>
+                <td>{% if preference.assignment_enabled %}<span class="status active">مفعل</span>{% else %}<span class="status used">متوقف</span>{% endif %}</td>
+                <td>{% if preference.invoice_enabled %}<span class="status active">مفعل</span>{% else %}<span class="status used">متوقف</span>{% endif %}</td>
+                <td>{% if preference.message_enabled %}<span class="status active">مفعل</span>{% else %}<span class="status used">متوقف</span>{% endif %}</td>
+                <td>
+                    {% if preference.quiet_hours_enabled %}
+                    <span class="status pending">{{ preference.quiet_start }} - {{ preference.quiet_end }}</span>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td><span class="code-badge">{{ preference.language }}</span></td>
+                <td>{{ preference.updated_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'dashboard:notification-preference-update' preference.id %}">تعديل</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="13" class="empty-row">لا توجد تفضيلات إشعارات.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}ربط Flutter Push{% endblock %}
+{% block page_title %}ربط Flutter Push{% endblock %}
+
+{% block content %}
+<div class="form-card receipt-card">
+    <div class="form-heading">
+        <h2>عقد الربط مع تطبيق Flutter</h2>
+        <p>هذه الصفحة تلخص ما يحتاجه تطبيق Flutter لتسجيل الجهاز واستقبال إشعارات Orbiet.</p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span>تسجيل جهاز Push</span>
+            <strong>/api/notifications/devices/</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>تفضيلات المستخدم</span>
+            <strong>/api/notifications/preferences/</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>إشعارات المستخدم</span>
+            <strong>/api/notifications/</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>تفاصيل إشعار</span>
+            <strong>/api/notifications/&lt;id&gt;/</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>سجل Push للمستخدم</span>
+            <strong>/api/notifications/deliveries/</strong>
+        </div>
+
+        <div class="detail-item">
+            <span>المصادقة</span>
+            <strong>JWT Bearer token للمستخدم الحالي</strong>
+        </div>
+    </div>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>حقل تسجيل الجهاز</th>
+                <th>المعنى</th>
+                <th>مثال</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="code-badge">token</span></td>
+                <td>FCM registration token من Firebase Messaging</td>
+                <td>fcm-token-from-device</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">platform</span></td>
+                <td>منصة الجهاز</td>
+                <td>ANDROID / IOS / WEB</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">app_name</span></td>
+                <td>اسم تطبيق Flutter</td>
+                <td>orbiet_flutter</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">device_id</span></td>
+                <td>معرف محلي للجهاز إن وجد</td>
+                <td>android-id-or-installation-id</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>حقل Delivery API</th>
+                <th>المعنى</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="code-badge">notification_title</span></td>
+                <td>عنوان الإشعار المرتبط بمحاولة الإرسال</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">notification_type</span></td>
+                <td>نوع الإشعار المرتبط بمحاولة الإرسال</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">notification_deep_link</span></td>
+                <td>الرابط الداخلي المرتبط بمحاولة الإرسال</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">device_platform</span></td>
+                <td>منصة الجهاز</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">device_app_name</span></td>
+                <td>اسم التطبيق المسجل للجهاز</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">device_identifier</span></td>
+                <td>معرف الجهاز المرسل من Flutter إن وجد</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">device_is_active</span></td>
+                <td>هل الجهاز لا يزال مفعّلًا لاستقبال Push</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>مفتاح Push payload</th>
+                <th>المعنى</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="code-badge">notification_id</span></td>
+                <td>رقم الإشعار داخل Orbiet</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">notification_type</span></td>
+                <td>GENERAL / GRADE / ATTENDANCE / ASSIGNMENT / INVOICE / PAYMENT / MESSAGE</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">related_object_type</span></td>
+                <td>اسم الكائن المرتبط، مثل FeeInvoice أو Assignment</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">related_object_id</span></td>
+                <td>رقم الكائن المرتبط</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">deep_link</span></td>
+                <td>الرابط الداخلي الذي يجب أن يفتحه Flutter عند الضغط على الإشعار</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Deep link</th>
+                <th>الصفحة المقترحة في Flutter</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="code-badge">orbiet://invoices/12</span></td>
+                <td>تفاصيل الفاتورة</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">orbiet://grades/8</span></td>
+                <td>تفاصيل الدرجة</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">orbiet://assignments/5</span></td>
+                <td>تفاصيل الواجب</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">orbiet://attendance?student_id=3</span></td>
+                <td>سجل حضور الطالب</td>
+            </tr>
+            <tr>
+                <td><span class="code-badge">orbiet://chat/rooms/2</span></td>
+                <td>غرفة المحادثة</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="page-actions">
+    <a href="{% url 'dashboard:push-diagnostics' %}" class="primary-button">تشخيص Push</a>
+    <a href="{% url 'dashboard:push-device-list' %}" class="secondary-button">أجهزة Push</a>
+    <a href="{% url 'dashboard:push-delivery-list' %}" class="secondary-button">سجل الإرسال</a>
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}تسليمات الواجبات{% endblock %}
+{% block page_title %}تسليمات الواجبات{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert success">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="classroom">
+            <option value="">كل الصفوف</option>
+            {% for classroom in classrooms %}
+            <option value="{{ classroom.id }}" {% if selected_classroom == classroom.id %}selected{% endif %}>
+                {{ classroom.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="section">
+            <option value="">كل الشعب</option>
+            {% for section in sections %}
+            <option value="{{ section.id }}" {% if selected_section == section.id %}selected{% endif %}>
+                {{ section }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="subject">
+            <option value="">كل المواد</option>
+            {% for subject in subjects %}
+            <option value="{{ subject.id }}" {% if selected_subject == subject.id %}selected{% endif %}>
+                {{ subject.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="status">
+            <option value="">كل الحالات</option>
+            {% for status_value, status_label in status_choices %}
+            <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>
+                {{ status_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="primary-button">
+            فلترة
+        </button>
+
+        <a href="{% url 'dashboard:assignment-submission-list' %}" class="secondary-button">
+            إعادة ضبط
+        </a>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>الطالب</th>
+                <th>الواجب</th>
+                <th>المادة</th>
+                <th>الملف</th>
+                <th>الحالة</th>
+                <th>تاريخ التسليم</th>
+                <th>درجة المراجعة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for submission in submissions %}
+            <tr>
+                <td>{{ submission.student.user.get_full_name|default:submission.student.user.username }}</td>
+                <td>{{ submission.assignment.title }}</td>
+                <td>{{ submission.assignment.subject.name }}</td>
+                <td>
+                    {% if submission.file %}
+                    <a href="{% url 'dashboard:assignment-submission-open' submission.id %}" class="table-link" target="_blank">
+                        فتح
+                    </a>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td><span class="status pending">{{ submission.status_name }}</span></td>
+                <td>{{ submission.submitted_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ submission.grade|default:"-" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'dashboard:assignment-submission-detail' submission.id %}" class="table-link">
+                            تفاصيل
+                        </a>
+                        <a href="{% url 'dashboard:assignment-submission-review' submission.id %}" class="table-link">
+                            مراجعة
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="empty-row">
+                    لا توجد تسليمات واجبات.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

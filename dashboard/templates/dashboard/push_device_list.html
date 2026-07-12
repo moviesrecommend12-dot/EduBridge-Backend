@@ -1,0 +1,102 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}أجهزة Push{% endblock %}
+{% block page_title %}أجهزة Push المسجلة{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="page-actions">
+    <form method="get" class="search-form">
+        <select name="user">
+            <option value="">كل المستخدمين</option>
+            {% for user in users %}
+            <option value="{{ user.id }}" {% if selected_user == user.id %}selected{% endif %}>
+                {{ user.get_full_name|default:user.username }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="platform">
+            <option value="">كل المنصات</option>
+            {% for platform_value, platform_label in platform_choices %}
+            <option value="{{ platform_value }}" {% if selected_platform == platform_value %}selected{% endif %}>
+                {{ platform_label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="status">
+            <option value="">كل الحالات</option>
+            <option value="active" {% if selected_status == "active" %}selected{% endif %}>فعال</option>
+            <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>غير فعال</option>
+        </select>
+
+        <button type="submit" class="primary-button">فلترة</button>
+        <a href="{% url 'dashboard:push-device-list' %}" class="secondary-button">إعادة ضبط</a>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>المستخدم</th>
+                <th>المنصة</th>
+                <th>التطبيق</th>
+                <th>Device ID</th>
+                <th>الحالة</th>
+                <th>آخر ظهور</th>
+                <th>آخر خطأ</th>
+                <th>التوكن</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+            <tr>
+                <td>{{ device.user.get_full_name|default:device.user.username }}</td>
+                <td><span class="code-badge">{{ device.platform }}</span></td>
+                <td>{{ device.app_name }}</td>
+                <td>{{ device.device_id|default:"-" }}</td>
+                <td>
+                    {% if device.is_active %}
+                    <span class="status active">فعال</span>
+                    {% else %}
+                    <span class="status used">غير فعال</span>
+                    {% endif %}
+                </td>
+                <td>{{ device.last_seen_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ device.last_error|default:"-" }}</td>
+                <td><span class="code-badge">{{ device.token|truncatechars:28 }}</span></td>
+                <td>
+                    <div class="table-actions">
+                        <form method="post" action="{% url 'dashboard:push-device-send-test' device.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="primary-button">اختبار Push</button>
+                        </form>
+
+                        <form method="post" action="{% url 'dashboard:push-device-toggle-active' device.id %}">
+                            {% csrf_token %}
+                            {% if device.is_active %}
+                            <button type="submit" class="secondary-button">تعطيل</button>
+                            {% else %}
+                            <button type="submit" class="primary-button">تفعيل</button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="empty-row">لا توجد أجهزة Push مسجلة.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
